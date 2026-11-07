@@ -1,0 +1,116 @@
+Metadata-Version: 2.4
+Name: fluidpy
+Version: 0.1.0
+Summary: Fluid mechanics calculation and visualisation, with a focus on water wave mechanics
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.22
+Requires-Dist: scipy>=1.8
+Requires-Dist: matplotlib>=3.5
+Provides-Extra: dev
+Requires-Dist: pytest>=7; extra == "dev"
+Dynamic: license-file
+
+# fluidpy
+
+A Python library for fluid mechanics calculation and visualisation. The first
+module under development is **`wave`**, covering water wave mechanics
+(linear theory, shoaling, wave energy, and nonlinear Stokes waves).
+
+> Status: early development. Function signatures are in place; implementations
+> are being added module by module.
+
+## Installation
+
+```bash
+git clone <your-repo-url>
+cd fluidpy
+pip install -e ".[dev]"
+```
+
+## Quick start
+
+```python
+from fluidpy import wave
+
+T, d = 8.0, 16.0                      # period [s], depth [m]
+k   = wave.solve_wavenumber(T, d)     # solves omega^2 = g k tanh(kd)
+lam = wave.wavelength(T, d)
+c   = wave.phase_speed(T, d)
+cg  = wave.group_velocity(T, d)
+```
+
+> Note: `fluidpy.wave` does not clash with Python's standard-library `wave`
+> module as long as you import it as `from fluidpy import wave`.
+
+## Package layout
+
+```
+fluidpy/
+├── pyproject.toml
+├── README.md
+├── LICENSE
+├── src/fluidpy/
+│   ├── __init__.py
+│   ├── dimensionless.py     # Reynolds, Froude, etc.
+│   ├── hydrostatics.py
+│   ├── bernoulli.py
+│   ├── open_channel.py
+│   └── wave/
+│       ├── __init__.py
+│       ├── constants.py     # g, rho
+│       ├── linear.py        # dispersion, c, cg, velocities, pressure, orbits
+│       ├── regimes.py       # deep / intermediate / shallow classification
+│       ├── energy.py        # PE, KE, total energy, energy flux
+│       ├── shoaling.py      # changes in wavelength and amplitude with depth
+│       ├── stokes.py        # 2nd order Stokes, 5th order (Fenton 1985)
+│       └── plotting.py      # matplotlib helpers
+├── tests/
+├── examples/
+└── docs/
+```
+
+## `wave` module scope
+
+| Submodule | Topic | Key results |
+|---|---|---|
+| `linear` | Small amplitude wave theory | Dispersion relation `omega^2 = g k tanh(kd)`, phase speed, group velocity, velocity field, particle orbits, pressure |
+| `regimes` | Depth classification | Deep `d > 0.5 lambda`, shallow `d < 0.05 lambda`, otherwise intermediate |
+| `energy` | Wave energy | `PE = KE = rho g a^2 / 4`, `E = rho g a^2 / 2`, energy flux `E cg` |
+| `shoaling` | Waves into shallow water | Constant `T`; `(a^2/k)[1 + 2kd/sinh(2kd)]` conserved |
+| `stokes` | Nonlinear regular waves | Second-order solution, fifth-order Fenton coefficients |
+| `plotting` | Visualisation | Surface profiles, orbits, shoaling curves |
+
+### Assumptions (linear theory)
+
+Incompressible, irrotational flow; flat impermeable bed; periodic motion;
+`a << lambda` and `a << d`. Shoaling additionally assumes slowly varying depth
+and no energy losses.
+
+## Testing
+
+```bash
+pytest
+```
+
+## Roadmap
+
+- [ ] Implement `wave.linear`
+- [ ] Implement `wave.shoaling`, `wave.energy`
+- [ ] Implement `wave.stokes` (2nd order, then Fenton 5th order)
+- [ ] Plotting helpers
+- [ ] Random waves / spectra (`wave.random`, later)
+- [ ] Other modules: dimensionless, hydrostatics, bernoulli, open_channel
+
+## References
+
+- Dean & Dalrymple, *Water Wave Mechanics for Engineers and Scientists*
+- Stoker, *Water Waves*
+- Holthuijsen, *Waves in Oceanic and Coastal Waters*
+- Fenton (1985), *A fifth-order Stokes theory for steady waves*, ASCE J. Waterway, Port, Coastal and Ocean Eng.
+
+## License
+
+MIT
