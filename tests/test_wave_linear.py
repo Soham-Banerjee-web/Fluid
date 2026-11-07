@@ -1,5 +1,5 @@
 import pytest
-from fluidpy import wave
+from fluid import wave
 
 
 @pytest.mark.skip(reason="not implemented yet")
